@@ -25,7 +25,7 @@ public class MetricsListener implements Listener {
     private void log(@NotNull TradeResult senderResult, @NotNull TradeResult receiverResult) {
         MetricsService service = TradeAudit.getInstance().getMetricsService();
 
-        Bukkit.getScheduler().runTaskAsynchronously(TradeAudit.getInstance(), () -> {
+        Runnable runnable = () -> {
             for (ItemStack item : senderResult.getSendingItems()) {
                 service.log(
                         senderResult.getPlayerId(), senderResult.getPlayerServer(), senderResult.getPlayerWorld(),
@@ -41,7 +41,11 @@ public class MetricsListener implements Listener {
                         icon
                 );
             }
-        });
+        };
+
+        if (TradeAudit.getInstance().isEnabled())
+            Bukkit.getScheduler().runTaskAsynchronously(TradeAudit.getInstance(), runnable);
+        else runnable.run();
     }
 
 }
