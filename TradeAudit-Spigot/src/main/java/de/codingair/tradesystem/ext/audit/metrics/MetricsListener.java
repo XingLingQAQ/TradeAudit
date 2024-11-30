@@ -4,6 +4,7 @@ import de.codingair.tradesystem.ext.audit.TradeAudit;
 import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
 import de.codingair.tradesystem.spigot.trade.TradeResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -24,21 +25,23 @@ public class MetricsListener implements Listener {
     private void log(@NotNull TradeResult senderResult, @NotNull TradeResult receiverResult) {
         MetricsService service = TradeAudit.getInstance().getMetricsService();
 
-        for (ItemStack item : senderResult.getSendingItems()) {
-            service.log(
-                    senderResult.getPlayerId(), senderResult.getPlayerServer(), senderResult.getPlayerWorld(),
-                    receiverResult.getPlayerId(), receiverResult.getPlayerServer(), receiverResult.getPlayerWorld(),
-                    item
-            );
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(TradeAudit.getInstance(), () -> {
+            for (ItemStack item : senderResult.getSendingItems()) {
+                service.log(
+                        senderResult.getPlayerId(), senderResult.getPlayerServer(), senderResult.getPlayerWorld(),
+                        receiverResult.getPlayerId(), receiverResult.getPlayerServer(), receiverResult.getPlayerWorld(),
+                        item
+                );
+            }
 
-        for (EconomyIcon<?> icon : senderResult.getEconomyIcons()) {
-            service.log(
-                    senderResult.getPlayerId(), senderResult.getPlayerServer(), senderResult.getPlayerWorld(),
-                    receiverResult.getPlayerId(), receiverResult.getPlayerServer(), receiverResult.getPlayerWorld(),
-                    icon
-            );
-        }
+            for (EconomyIcon<?> icon : senderResult.getEconomyIcons()) {
+                service.log(
+                        senderResult.getPlayerId(), senderResult.getPlayerServer(), senderResult.getPlayerWorld(),
+                        receiverResult.getPlayerId(), receiverResult.getPlayerServer(), receiverResult.getPlayerWorld(),
+                        icon
+                );
+            }
+        });
     }
 
 }
